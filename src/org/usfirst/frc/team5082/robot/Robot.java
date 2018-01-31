@@ -34,7 +34,7 @@ import edu.wpi.first.wpilibj.vision.VisionThread;
 import edu.wpi.first.wpilibj.AnalogInput;
 
 
-public class Robot extends IterativeRobot implements PIDOutput {
+public class Robot extends IterativeRobot /*implements PIDOutput*/ {
 	AHRS ahrs;
 	RobotDrive topCim;
 	RobotDrive midCim;
@@ -51,7 +51,7 @@ public class Robot extends IterativeRobot implements PIDOutput {
 	SendableChooser<Integer> chooser = new SendableChooser<Integer>();
 	private static final int IMG_WIDTH = 320;
 	private static final int IMG_HEIGHT = 240;
-	private VisionThread visionThread;
+	//private VisionThread visionThread;
 	double airpressure;
 	Spark rope2;
 	Talon agitator;
@@ -83,6 +83,8 @@ public class Robot extends IterativeRobot implements PIDOutput {
     Spark motorBottomLeft;
     Talon shooter;
     
+    Encoder enc0; 
+    
 	/**
 	 * This function is run when the robot is first started up and should be
 	 * used for any initialization code.
@@ -99,14 +101,15 @@ public class Robot extends IterativeRobot implements PIDOutput {
     	topCim =  new RobotDrive(motorTopLeft,motorTopRight); //change these values to assign motors
     	midCim = new RobotDrive(motorMiddleLeft,motorMiddleRight);
     	lowCim = new RobotDrive(motorBottomLeft,motorBottomRight);
+    	enc0 = new Encoder(0, 1);
     	enc = new Encoder(2, 3, false, Encoder.EncodingType.k2X); //change the 2x to 4x if the encoder still isn't working properly
     	enc2 = new Encoder(4, 5, false, Encoder.EncodingType.k2X); //change the 2x to 4x if the encoder still isn't working properly
     	transSolenoid = new DoubleSolenoid(1,0);
     	transSolenoid2 = new DoubleSolenoid(3,2);
     	//ballServo = new Servo(9);
-    	limitSwitch = new DigitalInput(1);
+    	//limitSwitch = new DigitalInput(1);
     	analogPsi = new AnalogInput(0);
-    	stick = new Joystick(0);
+    	stick = new Joystick(1);
     	gyro.calibrate();
     	gyro.reset();
         prefs = Preferences.getInstance();
@@ -116,12 +119,12 @@ public class Robot extends IterativeRobot implements PIDOutput {
         } catch (RuntimeException ex ) {
             DriverStation.reportError("Error instantiating navX-MXP:  " + ex.getMessage(), true);
         }
-        turnController = new PIDController(kP, kI, kD, kF, ahrs, this);
-        turnController.setInputRange(-180.0f,  180.0f);
-        turnController.setOutputRange(-1.0, 1.0);
-        turnController.setAbsoluteTolerance(kToleranceDegrees);
-        turnController.setContinuous(true);
-    	LiveWindow.addActuator("DriveSystem", "RotateController", turnController); 
+        //turnController = new PIDController(kP, kI, kD, kF, ahrs, this);
+        //turnController.setInputRange(-180.0f,  180.0f);
+        //turnController.setOutputRange(-1.0, 1.0);
+        //turnController.setAbsoluteTolerance(kToleranceDegrees);
+        //turnController.setContinuous(true);
+    	//LiveWindow.addActuator("DriveSystem", "RotateController", turnController); 
     	Rope = new Spark(8);
     	rope2 = new Spark(9);
     	shooter = new Talon(7);
@@ -133,9 +136,9 @@ public class Robot extends IterativeRobot implements PIDOutput {
     	chooser.addObject("Drive Straight", 4);
     	chooser.addObject("Center Gear Drop", 5);
     	chooser.addObject("None", 6);
-	    UsbCamera camera = CameraServer.getInstance().startAutomaticCapture();
-	    camera.setResolution(IMG_WIDTH, IMG_HEIGHT);
-	    visionThread = new VisionThread(camera, new pipeline(), pipeline -> {
+	    //UsbCamera camera = CameraServer.getInstance().startAutomaticCapture();
+	    //camera.setResolution(IMG_WIDTH, IMG_HEIGHT);
+	    /*visionThread = new VisionThread(camera, new pipeline(), pipeline -> {
 	        if (!pipeline.findContoursOutput().isEmpty()) {
 	            Rect r = Imgproc.boundingRect(pipeline.findContoursOutput().get(0));
 	            synchronized (imgLock) {
@@ -143,13 +146,14 @@ public class Robot extends IterativeRobot implements PIDOutput {
 	            }
 	        }
 	    });
-	    visionThread.start();
+	    visionThread.start();*/
 	    gyro.calibrate();
 	    enc2.reset();
 	    enc.reset();
+	    enc0.reset();
 	    topCim.setSafetyEnabled(false);
 	    midCim.setSafetyEnabled(false);
-	    lowCim.setSafetyEnabled(false);
+	    lowCim.setSafetyEnabled(false); */
 	}
 
 	/**
@@ -415,6 +419,10 @@ public class Robot extends IterativeRobot implements PIDOutput {
 		SmartDashboard.putNumber("Encoder 1 Measured Distance :", enc.getDistance());
 		SmartDashboard.putNumber("Encoder 1 Rate of Change: ", enc.getRate());
 		SmartDashboard.putNumber("Pressure Sensor Value: ", 250.0 * analogPsi.getVoltage() / 5.0 - 25.0);
+		
+		SmartDashboard.putNumber("Encoder 0 counts", enc0.get());
+		SmartDashboard.putNumber("Encoder 1 counts", enc.get());
+		SmartDashboard.putNumber("Encoder 2 counts", enc2.get());
 		int reset = 0;
 		double modBias;  // adjusted bias value for speed
 		double speedStick;   // reading on the joystick for speed
@@ -568,9 +576,13 @@ public class Robot extends IterativeRobot implements PIDOutput {
 	 */
 	@Override
 	public void testPeriodic() {
+		
+		SmartDashboard.putNumber("You've done that", 0);
+		
 	}
-	 public void pidWrite(double output) {
-	        rotateToAngleRate = output;
-	    }
+
+	/*public void pidWrite(double output) {
+	        //rotateToAngleRate = output;
+	}*/
 }
 
